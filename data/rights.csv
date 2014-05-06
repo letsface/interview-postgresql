@@ -1,0 +1,7 @@
+guest, Beer, false
+ds_users, Beer, true
+ds_users, "Brasserie d’Achouffe", true
+ds_admins, Beer, true
+ricky, "La Chouffe", true
+guest, "La Chouffe", true
+minlin, "McChouffe", false
