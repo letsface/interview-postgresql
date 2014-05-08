@@ -82,6 +82,7 @@ teams:
 
 ## TODO
 
+* clone this repository to your computer
 * In your postgresql.conf, setup a new customized option ```var.role_name = 'unknown'```
 * sql/ddl.sql: DDL for normalized data with the following tables:
  * Entity: contains all entities (including types which are also entities)
@@ -99,6 +100,7 @@ teams:
  * EntitySecure: view based on Entity that restricts access to data based on the user role set in var.role_name (a customized setting)
  * any other views of the data you need
 * pgtap/*.sql: add your own tests
+* zip up and send your local git repo by email with a detailed report on how much time it took
 
 ## Rules and evaluation criteria
 
