@@ -52,7 +52,7 @@ Security:
 * if no rights are specified for the entity, we default to the entity type rights
 * if no rights record are found, we deny access
 
-See rights.xlsx for the expected result.
+See rights.pdf for the expected result.
 
 ## Example data
 
