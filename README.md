@@ -108,6 +108,7 @@ teams:
 * Table names must be CamelCase
 * property/column names must use_underscore
 * indentation and comments are considered
+* BONUS: large dataset test / benchmarking / performance optimization
 
 ## pgtap
 
