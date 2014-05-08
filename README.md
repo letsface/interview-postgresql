@@ -108,6 +108,33 @@ The test pgtap/complete.sql must pass as-is.
 * Table names must be CamelCase
 * property/column names must use_underscore
 
+## pgtap
+
+Running the test requires pgTAP.
+
+Install pgTAP and pgprove:
+
+```
+sudo pgxn install pgtap
+sudo cpan TAP::Parser::SourceHandler::pgTAP
+```
+
+...or on Ubuntu:
+
+```
+sudo apt-get install libtap-parser-sourcehandler-pgtap-perl pgtap
+```
+
+You can then run the test:
+
+```
+$ pg_prove pgtap/complete.sql
+pgtap/complete.sql .. ok
+All tests successful.
+Files=1, Tests=4,  1 wallclock secs ( 0.04 usr  0.00 sys +  0.06 cusr  0.01 csys =  0.11 CPU)
+Result: PASS
+```
+
 ## Hints
 
 In your postgresql.conf, setup a new customized option:
