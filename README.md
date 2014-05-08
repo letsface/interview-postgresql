@@ -2,7 +2,11 @@
 
 ## Summary
 
-Use PostgreSQL to construct a user/team system allowing fine-grained access control to entities. To simplify the example, entities are just a name (string).
+Use PostgreSQL to construct a user/team system allowing fine-grained access control to entities.
+
+User/team management is built on top of the PostgreSQL roles system.
+
+To simplify the example, entities are just a name (string).
 
 ## Knowledge tested
 
@@ -104,6 +108,7 @@ teams:
 
 ## Rules and evaluation criteria
 
+* must use database roles (users and teams)
 * The test pgtap/complete.sql must pass as-is, without changes to the test.
 * The DDL must be normalized and enforce referential constraints and checks
 * Use double-quoted names for database entities to allow case-sensitivity
