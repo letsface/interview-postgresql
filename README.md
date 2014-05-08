@@ -1,72 +1,159 @@
-Overview
+# Row-level security
 
-* there are three parts: subject, object (entity) and operations
+## Summary
+
+Use PostgreSQL to construct a user/team system allowing fine-grained access control to entities. To simplify the example, entities are just a name (string).
+
+## Knowledge tested
+
+To solve this problem, you will use:
+
+* temporary tables
+* COPY command
+* plpgsql
+ * declaring types to match tables types
+ * FOR ... LOOP
+ * FOUND variable
+ * IF ... END IF
+ * EXECUTE and exception handling
+* CREATE ROLE
+* GRANT
+* DDL
+ * SERIAL type
+ * PRIMARY KEY
+ * constraints and REFERENCES
+ * NOT NULL
+* anonymous function blocks
+* testing using pgtap
+* customized options
+
+## Overview
+
+Entities/Type
+
+* Every entity has a type
+* Types are also entities with a type "Type"
+* Every entity has a string name
+
+Security:
+
+* there are three parts: subject (role), object (entity) and operations (query)
 * operations are:
- * create: can create an instance of this type (only applicable to type)
  * query: can retrieve the document
- * update: can modify the document
- * remove: can mark document as removed
-* operations can be either true (allow) or false (disallow)
+* operations can be: true (allow), false (disallow) or unspecified (null)
 * We want to be able to specify down to the entity / user level
 * User-specified rights override teams rights
+* Any user allow overrides other user disallow
 * Any team allow overrides other teams disallow
-* if no rights are specified for the entity, we default to the type
+* if no rights are specified for the entity, we default to the entity type rights
 * if no rights record are found, we deny access
 
-Additionally, entities are linked to other entities by Relationships; any disallowance in one of the entity (or the relationship itself, which is also an entity) results into the whole chain being disallowed.
+See rights.xlsx for the expected result.
 
-Example:
+## Example data
 
-* ds_users is a team role
-* ds_admins is a team role
-* ds_admin is role, part of ds_admins
-* ricky is a role, part of ds_users
-* minlin is a role, part of ds_users and ds_admin
-* Beer is a Type
- * "La Chouffe" is an instance of Beer
- * "McChouffe" is an instance of Beer
-* Company is a Type
- * "Brasserie d’Achouffe" is an instance of Company
- * "Dean's Bottle Shop" is an instance of Company
+Look at the data/ directory for example input data.
 
-relationships are:
+entities:
 
-"La Chouffe", "brewed by",  "Brasserie d’Achouffe"
-"McChouffe", "brewed by", "Brasserie d’Achouffe"
-"La Chouffe", "distributed by",  "Cheers In"
+* entity name
+* entity type name
 
-roles are expressed as:
+relationships:
 
-guest
-ricky
-minlin
-ds_users, ricky, guest
-ds_admins, minlin
+* source entity name (detail)
+* relationship description
+* target entity name (master)
 
-for the query operation, we have the following rights records:
+rights:
 
-* guest, Beer, false
-* ds_users, Beer, true
-* ds_users, "Brasserie d’Achouffe", true
-* ds_admins, Beer, true
-* ricky, "La Chouffe", true
-* guest, "La Chouffe", true
-* minlin, "McChouffe", false
+* role name
+* entity or type name
+* query allowed or disallowed (boolean)
 
-As user minlin, query access looks like:
+roles:
 
-* Beer = true [type allowed by group ds_admins]
-* "La Chouffe" = true [entity allowed by type Beer]
-* "McChouffe" = false [entity disallowed to user minlin]
+* role name
 
-As user ricky, query access to:
+teams:
 
-* Beer = true [type allowed by group ds_users]
-* "La Chouffe" = true [entity allowed by user]
-* "McChouffe" = false [entity has no relevant record associated]
+* role name
+* comma-separated list of roles
 
-As user guest, query access to:
+## TODO
 
-* Beer = false [type disallowed to user guest]
-* "La Chouffe" = false [type disallowed to user guest]
-* "McChouffe" = false [type disallowed to user guest]
+* sql/ddl.sql: DDL for normalized data with the following tables:
+ * Entity: contains all entities (including types which are also entities)
+ * RelationshipDescription: contains the description text
+ * RelationshipInstance: links the source, target entity and relationship description
+ * Right: refers to the entity id, the role and value for the query operation
+* sql/ddl_drop.sql: reverse operation from ddl.sql in the correct order
+ * should NOT use CASCADE
+* sql/import.sql: import script
+ * create import data tables matching inputs
+ * use the appropriate COPY command to process the data
+ * insert bootstrap Type record into the Entity table
+ * anonymous plpgsql script to turn all loaded data into entities
+* sql/view.sql
+ * EntitySecure: view based on Entity that restricts access to data based on the user role set in var.role_name (a customized setting)
+ * any other views of the data you need
+* pgtap/*.sql: add your own tests
+
+The test pgtap/complete.sql must pass as-is.
+
+## Rules
+
+* The DDL must be normalized and enforce referential constraints and checks
+* Use double-quoted names for database entities to allow case-sensitivity
+* Table names must be CamelCase
+* property/column names must use_underscore
+
+## Hints
+
+In your postgresql.conf, setup a new customized option:
+
+``
+var.role_name = 'unknown'
+```
+
+For importing, use the:
+
+```
+COPY "destination" FROM filename DELIMITERS ',' CSV
+```
+
+For processing the entities, relationships, rights from imported data to normalized data use a:
+
+```
+FOR variable_of_imported_rowtype IN
+	-- select from the imported data
+LOOP
+	-- see if the type already exist
+	-- if it does not exist, create it
+	-- insert the updated Entity, RelationshipInstance or Right
+END LOOP;
+```
+when importing data, also make sure you use TRIM to clean up the inputs.
+
+For roles and teams, use string concatenation to build the appropriate CREATE ROLE and GRANT ... TO.
+
+For EntitySecure, suggest using LEFT OUTER JOIN to other tables.
+
+The list of teams a role is linked to can be obtained with:
+
+```
+	SELECT rolname::text AS name
+		FROM pg_auth_members,pg_roles
+		WHERE roleid = oid
+		AND member IN (
+			SELECT oid
+				FROM pg_roles
+				WHERE rolname = current_setting('var.role_name')
+			)
+```
+
+Customized options values can be fetched as follow:
+
+```
+current_setting('var.role_name')
+```

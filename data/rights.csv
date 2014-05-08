@@ -1,6 +1,11 @@
+ds_users, Type, true
+ds_admins, Type, true
+ds_users, Company, false
+ds_admins, Company, false
 guest, Beer, false
 ds_users, Beer, true
-ds_users, "Brasserie d’Achouffe", true
+ricky, "Company", true
+ricky, "Brasserie d'Achouffe", false
 ds_admins, Beer, true
 ricky, "La Chouffe", true
 guest, "La Chouffe", true
