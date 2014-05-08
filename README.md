@@ -114,7 +114,7 @@ teams:
 * Use double-quoted names for database entities to allow case-sensitivity
 * Table names must be CamelCase
 * property/column names must use_underscore
-* indentation and comments are considered
+* naming, indentation, documentation, consistency and comments are part of the evaluation
 * BONUS: large dataset test / benchmarking / performance optimization
 
 ## pgtap
