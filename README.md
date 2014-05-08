@@ -139,7 +139,7 @@ Result: PASS
 
 In your postgresql.conf, setup a new customized option:
 
-``
+```
 var.role_name = 'unknown'
 ```
 
@@ -160,6 +160,7 @@ LOOP
 	-- insert the updated Entity, RelationshipInstance or Right
 END LOOP;
 ```
+
 when importing data, also make sure you use TRIM to clean up the inputs.
 
 For roles and teams, use string concatenation to build the appropriate CREATE ROLE and GRANT ... TO.
