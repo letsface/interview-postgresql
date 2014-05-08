@@ -82,6 +82,7 @@ teams:
 
 ## TODO
 
+* In your postgresql.conf, setup a new customized option ```var.role_name = 'unknown'```
 * sql/ddl.sql: DDL for normalized data with the following tables:
  * Entity: contains all entities (including types which are also entities)
  * RelationshipDescription: contains the description text
@@ -99,14 +100,14 @@ teams:
  * any other views of the data you need
 * pgtap/*.sql: add your own tests
 
-The test pgtap/complete.sql must pass as-is.
+## Rules and evaluation criteria
 
-## Rules
-
+* The test pgtap/complete.sql must pass as-is, without changes to the test.
 * The DDL must be normalized and enforce referential constraints and checks
 * Use double-quoted names for database entities to allow case-sensitivity
 * Table names must be CamelCase
 * property/column names must use_underscore
+* indentation and comments are considered
 
 ## pgtap
 
@@ -136,12 +137,6 @@ Result: PASS
 ```
 
 ## Hints
-
-In your postgresql.conf, setup a new customized option:
-
-```
-var.role_name = 'unknown'
-```
 
 For importing, use the:
 
